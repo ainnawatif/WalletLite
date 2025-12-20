@@ -83,5 +83,6 @@ The UI of WalletLite is designed using **Figma**:
 
 
 ## 📚 References
-
+Figma Documentation: https://www.figma.com/design/grNokvbjeAjLV23XVOZXmG/WalletLite?node-id=0-1&p=f&t=LQxRLD19ImeQI6LO-0
+Firebase Documentation: https://console.firebase.google.com/u/0/project/walletlite-c22d7/overview
 
