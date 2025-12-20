@@ -6,7 +6,7 @@ Simple Budget &amp; Expenses Tracker
 |------|---------------|
 | Nurain Awatif Binti Ismail | 2214552 |
 | Nurul Adlina Binti Roslan | 2219814 |
-| Nana ...   |   ... |
+| Nana Aichata Mbourou Camara   |   2125102 |
 
 ---
 
