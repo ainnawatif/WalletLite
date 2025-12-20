@@ -77,6 +77,9 @@ The UI of WalletLite is designed using **Figma**:
 
 
 ## 🗄 Data Model
+The Entity Relationship Diagram (ERD) represents the database structure of the personal finance management system. The data model consists of three main entities: User, Transaction, and Category.
+
+<img width="686" height="546" alt="ERD" src="https://github.com/user-attachments/assets/37c17fa9-d926-4782-9af4-039862634bb4" />
 
 
 ## 🔄 Flowchart
