@@ -83,6 +83,12 @@ The Entity Relationship Diagram (ERD) represents the database structure of the p
 
 
 ## 🔄 Flowchart
+The sequence diagram illustrates how users interact with the personal finance management system. Users begin by logging in or registering using Firebase Authentication. Once authenticated, the system retrieves and stores user data, transactions, and categories using the Firebase database, and displays the dashboard for navigation. The diagram shows the sequence of actions for managing transactions, categories, viewing expense visualizations, and securely logging out.
+
+<p align="center">
+  <img width="510" height="851" alt="Sequence diagram"
+       src="https://github.com/user-attachments/assets/e8ef3cdc-2252-4f10-8df7-17649bb2a635" />
+</p>
 
 
 ## 📚 References
