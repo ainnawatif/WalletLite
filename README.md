@@ -81,7 +81,19 @@ The UI of WalletLite is designed using **Figma**:
 
 
 ## 🏗 Architecture / Technical Design
+The application follows a modular widget-based architecture usibg flutter. the user interface is divided into multiple screens such as login, dashboard, transaction management, category management and user profile. Each scree is composed of smaller reusable widgets, including transaction cards category tiles, and summary components to promote code rusability and maintainability.
 
+**1. Package & Plugins (FlutterFire)**
+To implementt backend functionality, we will be using FlutterFire, a set of plugins that connect the Flutter application to Firebase services. The specific plugins integrated into WalletLite are:
+
+**+Authenticatication (Firebase_auth):** We use this plugin to handle user identity. It enablles secure authentication mechanisms, allowing users to sign in via emails and password or identity providers like Google.
+
+**+Database (cloud_firestore):** All transaction records and category data are store using Cloud Firestore. This is a cloud-hosted, NoSQL database that supports live synchronization, ensuring data remains updated across devices.
+
+**+Storage (firebase_storage):** We utilize this plugin to store and retrieve user-generated content, such as profile pictures, in a secure and cost-effective object storegae service.
+
+**2. Widget Composition & UI Layout**
+The user interface is built using Composition over Inheritance, combining simple widgets to create complex layout
 
 ## 🗄 Data Model
 The Entity Relationship Diagram (ERD) represents the database structure of the personal finance management system. The data model consists of three main entities: User, Transaction, and Category.
