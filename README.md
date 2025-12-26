@@ -86,14 +86,34 @@ The application follows a modular widget-based architecture usibg flutter. the u
 **1. Package & Plugins (FlutterFire)**
 To implementt backend functionality, we will be using FlutterFire, a set of plugins that connect the Flutter application to Firebase services. The specific plugins integrated into WalletLite are:
 
-**+Authenticatication (Firebase_auth):** We use this plugin to handle user identity. It enablles secure authentication mechanisms, allowing users to sign in via emails and password or identity providers like Google.
+- **Authenticatication (Firebase_auth):** We use this plugin to handle user identity. It enablles secure authentication mechanisms, allowing users to sign in via emails and password or identity providers like Google.
 
-**+Database (cloud_firestore):** All transaction records and category data are store using Cloud Firestore. This is a cloud-hosted, NoSQL database that supports live synchronization, ensuring data remains updated across devices.
+- **Database (cloud_firestore):** All transaction records and category data are store using Cloud Firestore. This is a cloud-hosted, NoSQL database that supports live synchronization, ensuring data remains updated across devices.
 
-**+Storage (firebase_storage):** We utilize this plugin to store and retrieve user-generated content, such as profile pictures, in a secure and cost-effective object storegae service.
+- **Storage (firebase_storage):** We utilize this plugin to store and retrieve user-generated content, such as profile pictures, in a secure and cost-effective object storegae service.
 
 **2. Widget Composition & UI Layout**
 The user interface is built using Composition over Inheritance, combining simple widgets to create complex layout
+
+- **Structural Layouts:** Each main screen (e.g., Dashboard, Profile) is built upon a Scaffold widget. This provides the standard Material Design structure, including the AppBar for titles and the BottomNavigationBar for navigating between the Home, Analysis, and Profile sections.
+
+- **Content Arrangement:**
+
+  - **Column & Row:** These are extensively used to align elements. For example, the Transaction History uses a Column to list expenses vertically, while the Dashboard uses a Row to display "Income" and "Expense" cards side-by-side.
+
+  - **Container:** This widget is used to style UI blocks, such as the total balance card, by applying padding, margins, and background decoration.
+
+  - **ListView:** Used in the Transaction screen to render scrollable lists of expense items, allowing the app to handle dynamic numbers of entries efficiently.
+
+**3. State Management & Interactivity**
+To handle dynamic data and user input, the application distinguishes between two widget types:
+
+- **Stateless Widgets:** Used for static screens where the interface does not change after being built, such as the Onboarding Screen.
+
+- **Stateful Widgets:** Used for interactive screens like Add Expense and Login. These widgets maintain a mutable State object that tracks changes (e.g., user input or a new transaction) and calls _setState()_ to rebuild the UI and reflect the updates immediately.
+
+- **Form Handling:** The Login and Sign Up screens utilize the Form widget combined with _TextFormField_. This allows us to manage form state and implement _validator_ logic to ensure inputs (like email format) are correct before processing
+
 
 ## 🗄 Data Model
 The Entity Relationship Diagram (ERD) represents the database structure of the personal finance management system. The data model consists of three main entities: User, Transaction, and Category.
