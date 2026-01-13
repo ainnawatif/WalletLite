@@ -26,7 +26,7 @@ class _SplashPageState extends State<SplashPage> {
       backgroundColor: const Color(0xFF1F4D6B),
       body: Center(
         child: Icon(
-          Icons.inventory_2_outlined,
+          Icons.account_balance_wallet,
           color: Colors.white,
           size: 120,
         ),
