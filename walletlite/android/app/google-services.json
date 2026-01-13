@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "737995419164",
+    "project_id": "walletlite-c22d7",
+    "storage_bucket": "walletlite-c22d7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737995419164:android:cfeecde20b44c3bfcf39d9",
+        "android_client_info": {
+          "package_name": "com.example.walletlite"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.walletlite",
+            "certificate_hash": "007e62fd4885e85575536ae640007da4b6086a5b"
+          }
+        },
+        {
+          "client_id": "737995419164-nfbfvje6pmmvf65frs8ap3p59r79pqq6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdnkBIdFJTNSA9AMbv4fCi-fQkI45bTzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737995419164-nfbfvje6pmmvf65frs8ap3p59r79pqq6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

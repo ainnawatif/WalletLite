@@ -1,7 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'pages/home_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  print('\n' + '='*50);
+  print('🚀 Starting Firebase Initialization...');
+  print('='*50);
+  
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('✓ Firebase initialized successfully!');
+    print('✓ Firestore is ready to use');
+    print('='*50 + '\n');
+  } catch (e) {
+    print('✗ Firebase initialization failed!');
+    print('Error: $e');
+    print('❌ Make sure you updated firebase_options.dart with real credentials!');
+    print('='*50 + '\n');
+  }
+  
   runApp(const MyApp());
 }
 
@@ -21,3 +43,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

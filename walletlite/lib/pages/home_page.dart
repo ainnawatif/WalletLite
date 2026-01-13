@@ -1,99 +1,127 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import 'profile_page.dart';
+import 'category_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // HEADER
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1F4D6B),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Hi, Welcome Back",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      _BalanceCard(
-                        title: "Total Balance",
-                        amount: "RM 7,783.00",
-                        color: Colors.white,
-                      ),
-                      _BalanceCard(
-                        title: "Total Expense",
-                        amount: "-RM 1,187.40",
-                        color: Colors.redAccent,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // CONTENT
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: const [
-                  _TransactionTile(
-                    title: "Salary",
-                    date: "April 30",
-                    amount: "RM 400.00",
-                    positive: true,
-                  ),
-                  _TransactionTile(
-                    title: "Groceries",
-                    date: "April 24",
-                    amount: "-RM 100.00",
-                    positive: false,
-                  ),
-                  _TransactionTile(
-                    title: "Rent",
-                    date: "April 15",
-                    amount: "-RM 674.40",
-                    positive: false,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+      body: _buildBody(),
       bottomNavigationBar: BottomNav(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
         onTap: (index) {
-          if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            );
-          }
+          setState(() {
+            _currentIndex = index;
+          });
         },
       ),
     );
   }
+
+  /// Handles page switching
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return _homeContent();
+      case 3:
+        return const CategoryPage(); // Categories
+      case 4:
+        return const ProfilePage(); // Profile
+      default:
+        return const Center(child: Text("Coming Soon"));
+    }
+  }
+
+  /// HOME PAGE CONTENT (your original UI)
+  Widget _homeContent() {
+    return SafeArea(
+      child: Column(
+        children: [
+          // HEADER
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1F4D6B),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(30),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Hi, Welcome Back",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    _BalanceCard(
+                      title: "Total Balance",
+                      amount: "RM 7,783.00",
+                      color: Colors.white,
+                    ),
+                    _BalanceCard(
+                      title: "Total Expense",
+                      amount: "-RM 1,187.40",
+                      color: Colors.redAccent,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // CONTENT
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: const [
+                _TransactionTile(
+                  title: "Salary",
+                  date: "April 30",
+                  amount: "RM 400.00",
+                  positive: true,
+                ),
+                _TransactionTile(
+                  title: "Groceries",
+                  date: "April 24",
+                  amount: "-RM 100.00",
+                  positive: false,
+                ),
+                _TransactionTile(
+                  title: "Rent",
+                  date: "April 15",
+                  amount: "-RM 674.40",
+                  positive: false,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
+/* =======================
+   REUSABLE WIDGETS
+   ======================= */
 
 class _BalanceCard extends StatelessWidget {
   final String title;
