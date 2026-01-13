@@ -75,12 +75,45 @@ The UI of WalletLite is designed using **Figma**:
 <img width="1000" height="707" alt="Screenshot (812)" src="https://github.com/user-attachments/assets/8cea3a80-e8d7-4ba2-a6eb-a27fe8f8994d" />
 <img width="672" height="700" alt="Screenshot (813)" src="https://github.com/user-attachments/assets/c5f5ace5-2163-4505-984b-6edf14858e9a" />
 <img width="1029" height="724" alt="Screenshot (814)" src="https://github.com/user-attachments/assets/4f550c39-4222-4ca8-8c38-9217ec1a813f" />
-<img width="1123" height="606" alt="Screenshot (815)" src="https://github.com/user-attachments/assets/6c9ce189-cfbb-4297-b0d6-2520478a5675" />
+<img width="709" height="376" alt="Screenshot 2026-01-01 181833" src="https://github.com/user-attachments/assets/92f7a42e-3c99-45f4-b6cf-73bb0f3005c3" />
+<img width="702" height="373" alt="Screenshot 2026-01-01 181846" src="https://github.com/user-attachments/assets/ba7c752d-8781-455d-be66-302fcb541725" />
 <img width="531" height="562" alt="Screenshot (816)" src="https://github.com/user-attachments/assets/899a6a3f-3e06-4103-9223-7b7c0887c561" />
 <img width="1058" height="566" alt="Screenshot (817)" src="https://github.com/user-attachments/assets/012c99a9-b245-4989-a213-500aca5e9b08" />
 
 
 ## 🏗 Architecture / Technical Design
+The application follows a modular widget-based architecture usibg flutter. the user interface is divided into multiple screens such as login, dashboard, transaction management, category management and user profile. Each scree is composed of smaller reusable widgets, including transaction cards category tiles, and summary components to promote code rusability and maintainability.
+
+**1. Package & Plugins (FlutterFire)**
+To implementt backend functionality, we will be using FlutterFire, a set of plugins that connect the Flutter application to Firebase services. The specific plugins integrated into WalletLite are:
+
+- **Authenticatication (Firebase_auth):** We use this plugin to handle user identity. It enablles secure authentication mechanisms, allowing users to sign in via emails and password or identity providers like Google.
+
+- **Database (cloud_firestore):** All transaction records and category data are store using Cloud Firestore. This is a cloud-hosted, NoSQL database that supports live synchronization, ensuring data remains updated across devices.
+
+- **Storage (firebase_storage):** We utilize this plugin to store and retrieve user-generated content, such as profile pictures, in a secure and cost-effective object storegae service.
+
+**2. Widget Composition & UI Layout**
+The user interface is built using Composition over Inheritance, combining simple widgets to create complex layout
+
+- **Structural Layouts:** Each main screen (e.g., Dashboard, Profile) is built upon a Scaffold widget. This provides the standard Material Design structure, including the AppBar for titles and the BottomNavigationBar for navigating between the Home, Analysis, and Profile sections.
+
+- **Content Arrangement:**
+
+  - **Column & Row:** These are extensively used to align elements. For example, the Transaction History uses a Column to list expenses vertically, while the Dashboard uses a Row to display "Income" and "Expense" cards side-by-side.
+
+  - **Container:** This widget is used to style UI blocks, such as the total balance card, by applying padding, margins, and background decoration.
+
+  - **ListView:** Used in the Transaction screen to render scrollable lists of expense items, allowing the app to handle dynamic numbers of entries efficiently.
+
+**3. State Management & Interactivity**
+To handle dynamic data and user input, the application distinguishes between two widget types:
+
+- **Stateless Widgets:** Used for static screens where the interface does not change after being built, such as the Onboarding Screen.
+
+- **Stateful Widgets:** Used for interactive screens like Add Expense and Login. These widgets maintain a mutable State object that tracks changes (e.g., user input or a new transaction) and calls _setState()_ to rebuild the UI and reflect the updates immediately.
+
+- **Form Handling:** The Login and Sign Up screens utilize the Form widget combined with _TextFormField_. This allows us to manage form state and implement _validator_ logic to ensure inputs (like email format) are correct before processing
 
 
 ## 🗄 Data Model
