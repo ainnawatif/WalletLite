@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../pages/home_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -14,6 +15,50 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
+  Future<void> _signUpWithGoogle() async {
+    try {
+      // Show loading
+      showDialog(
+        context: context,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      if (googleUser == null) {
+        if (mounted) Navigator.pop(context); // Remove loader
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (mounted) {
+        Navigator.pop(context); 
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomePage()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); 
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Google Sign-In Failed: $e"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   Future<void> _signUp() async {
     if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
@@ -109,7 +154,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const Text("OR", style: TextStyle(color: Colors.white70)),
                 const SizedBox(height: 10),
 
-                _googleButton("Sign up with Google"),
+                _googleButton("Sign up with Google", _signUpWithGoogle),
 
                 const SizedBox(height: 20),
 
@@ -161,16 +206,16 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget _googleButton(String text) {
+  Widget _googleButton(String text, VoidCallback onTap) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
+          borderRadius: BorderRadius.circular(30)
+          ),
       ),
-      onPressed: () {},
+      onPressed: onTap, // Call the function
       icon: const Icon(Icons.g_mobiledata, color: Colors.red),
       label: Text(text, style: const TextStyle(color: Colors.black)),
     );
