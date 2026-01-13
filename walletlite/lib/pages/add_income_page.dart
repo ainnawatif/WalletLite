@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class AddExpensePage extends StatefulWidget {
-  const AddExpensePage({super.key});
+class AddIncomePage extends StatefulWidget {
+  const AddIncomePage({super.key});
 
   @override
-  State<AddExpensePage> createState() => _AddExpensePageState();
+  State<AddIncomePage> createState() => _AddIncomePageState();
 }
 
-class _AddExpensePageState extends State<AddExpensePage> {
+class _AddIncomePageState extends State<AddIncomePage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
@@ -16,11 +16,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
   String? _selectedCategory;
 
   final List<String> _categories = [
-    "Food",
-    "Transport",
-    "Shopping",
-    "Bills",
-    "Entertainment",
+    "Salary",
+    "Business",
+    "Investment",
+    "Gift",
     "Other",
   ];
 
@@ -34,7 +33,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1F4D6B), // Match app color
+              primary: Color(0xFF1F4D6B), // Match your app color
               onPrimary: Colors.white,
               onSurface: Color(0xFF1F4D6B),
             ),
@@ -50,7 +49,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
-  // Helper for the white card style
+  // Helper to create the white card background for inputs
   Widget _buildInputContainer({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
@@ -69,17 +68,17 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FB),
+      // Use SingleChildScrollView to prevent overflow on smaller screens
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. AMOUNT FIELD
+            // 1. AMOUNT FIELD (Highlighted)
             _buildInputContainer(
               child: TextField(
                 controller: _amountController,
@@ -87,7 +86,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFD32F2F), // Red text for Expense
+                  color: Color(0xFF1F4D6B),
                 ),
                 decoration: const InputDecoration(
                   hintText: "0.00",
@@ -116,7 +115,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 2. DATE PICKER (Matching Icon)
+            // 2. DATE PICKER
             GestureDetector(
               onTap: _pickDate,
               child: _buildInputContainer(
@@ -130,7 +129,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       const Icon(
                         Icons.calendar_today_rounded,
                         color: Color(0xFF1F4D6B),
-                      ), // Same as Income
+                      ),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +157,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 3. CATEGORY (Matching Icon)
+            // 3. CATEGORY
             _buildInputContainer(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -169,7 +168,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     prefixIcon: Icon(
                       Icons.category_rounded,
                       color: Color(0xFF1F4D6B),
-                    ), // Same as Income
+                    ),
                     labelText: "Category",
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
@@ -190,7 +189,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 4. TITLE (Matching Icon)
+            // 4. TITLE
             _buildInputContainer(
               child: TextField(
                 controller: _titleController,
@@ -198,7 +197,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   prefixIcon: Icon(
                     Icons.title_rounded,
                     color: Color(0xFF1F4D6B),
-                  ), // Same as Income
+                  ),
                   labelText: "Title",
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
@@ -210,18 +209,18 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 5. MESSAGE (Matching Icon)
+            // 5. MESSAGE
             _buildInputContainer(
               child: TextField(
                 controller: _messageController,
                 maxLines: 3,
                 decoration: const InputDecoration(
                   prefixIcon: Padding(
-                    padding: EdgeInsets.only(bottom: 40),
+                    padding: EdgeInsets.only(bottom: 40), // Align icon to top
                     child: Icon(
                       Icons.note_alt_rounded,
                       color: Color(0xFF1F4D6B),
-                    ), // Same as Income
+                    ),
                   ),
                   labelText: "Note (Optional)",
                   alignLabelWithHint: true,
@@ -249,10 +248,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   ),
                 ),
                 onPressed: () {
-                  // TODO: Save expense logic
+                  // TODO: Save logic
                 },
                 child: const Text(
-                  "Save Expense",
+                  "Save Income",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),

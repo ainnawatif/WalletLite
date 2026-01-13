@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  fl_chart: ^0.66.0
+
 
   # Firebase Core (Required for all Firebase apps)
   firebase_core: ^2.32.0
