@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../services/firestore_service.dart';
 import 'signup_page.dart';
 import '../pages/home_page.dart';
 
@@ -36,8 +37,17 @@ class _LoginPageState extends State<LoginPage> {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
+      
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      if (userCredential.user != null) {
+        await FirestoreService().saveUser(
+          userCredential.user!.uid,
+          userCredential.user!.email!,
+          userCredential.user!.displayName,
+          userCredential.user!.photoURL,
+        );
+      }
 
       if (mounted) {
         Navigator.pop(context); 
@@ -158,12 +168,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Updated _input to accept a controller
+  
   Widget _input(String hint, TextEditingController controller, {bool obscure = false}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: controller, // Connect the controller here
+        controller: controller, 
         obscureText: obscure,
         decoration: InputDecoration(
           hintText: hint,

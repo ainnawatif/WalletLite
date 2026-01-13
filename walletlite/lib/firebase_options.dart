@@ -46,53 +46,53 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',  // From Firebase Console - Project Settings > Web App
-    appId: '1:737995419164:web:YOUR_WEB_APP_ID',
+    apiKey: 'AIzaSyDMKRfghOhCjjvJ5CYdH0Q0LzdxHNTOJCA',
+    appId: '1:737995419164:web:113cc872168f4740cf39d9',
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
     authDomain: 'walletlite-c22d7.firebaseapp.com',
-    databaseURL: 'https://walletlite-c22d7.firebaseio.com',
-    storageBucket: 'walletlite-c22d7.appspot.com',
-    measurementId: 'G-YOUR_MEASUREMENT_ID',  // From Firebase Console > Web App settings
+    storageBucket: 'walletlite-c22d7.firebasestorage.app',
+    measurementId: 'G-SYYLLYK0QW',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',  // From google-services.json or Firebase Console
+    apiKey: 'AIzaSyBdnkBIdFJTNSA9AMbv4fCi-fQkI45bTzM',
     appId: '1:737995419164:android:cfeecde20b44c3bfcf39d9',
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
-    databaseURL: 'https://walletlite-c22d7.firebaseio.com',
-    storageBucket: 'walletlite-c22d7.appspot.com',
+    storageBucket: 'walletlite-c22d7.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_iOS_API_KEY',  // From GoogleService-Info.plist or Firebase Console
-    appId: '1:737995419164:ios:YOUR_iOS_APP_ID',
+    apiKey: 'AIzaSyCZcFpsLaL1wWV_LkuRsLdD8MU6ogUKl6s',
+    appId: '1:737995419164:ios:56b41487618d9db4cf39d9',
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
-    databaseURL: 'https://walletlite-c22d7.firebaseio.com',
-    storageBucket: 'walletlite-c22d7.appspot.com',
+    storageBucket: 'walletlite-c22d7.firebasestorage.app',
+    androidClientId: '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
+    iosClientId: '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
     iosBundleId: 'com.example.walletlite',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR_macOS_API_KEY',  // From GoogleService-Info.plist or Firebase Console
-    appId: '1:737995419164:macos:YOUR_macOS_APP_ID',
+    apiKey: 'AIzaSyCZcFpsLaL1wWV_LkuRsLdD8MU6ogUKl6s',
+    appId: '1:737995419164:ios:56b41487618d9db4cf39d9',
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
-    databaseURL: 'https://walletlite-c22d7.firebaseio.com',
-    storageBucket: 'walletlite-c22d7.appspot.com',
+    storageBucket: 'walletlite-c22d7.firebasestorage.app',
+    androidClientId: '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
+    iosClientId: '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
     iosBundleId: 'com.example.walletlite',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'YOUR_WINDOWS_API_KEY',  // From Firebase Console > Web App settings
-    appId: '1:737995419164:windows:YOUR_WINDOWS_APP_ID',
+    apiKey: 'AIzaSyDMKRfghOhCjjvJ5CYdH0Q0LzdxHNTOJCA',
+    appId: '1:737995419164:web:67c665dbed33985fcf39d9',
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
     authDomain: 'walletlite-c22d7.firebaseapp.com',
-    databaseURL: 'https://walletlite-c22d7.firebaseio.com',
-    storageBucket: 'walletlite-c22d7.appspot.com',
+    storageBucket: 'walletlite-c22d7.firebasestorage.app',
+    measurementId: 'G-V71XTVCBZ9',
   );
-}
 
+}

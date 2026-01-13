@@ -38,8 +38,23 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Poppins',
         scaffoldBackgroundColor: const Color(0xFFEFF6FB),
+        useMaterial3: true,
+
+        // 1. Define the Main Color Scheme
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1F4D6B)),
+
+        // 2. GLOBAL BUTTON STYLE (Blue Background, White Text)
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1F4D6B), 
+            foregroundColor: Colors.white,           
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            minimumSize: const Size(double.infinity, 50), 
+          ),
+        ),
       ),
-      //home: const HomePage(),
       home: const SplashPage(),
     );
   }

@@ -275,4 +275,33 @@ class FirestoreService {
           .toList();
     });
   }
+
+  // USER OPERATIONS
+  final CollectionReference _usersCollection = FirebaseFirestore.instance.collection('users');
+
+  /// Create or Update User Profile
+  Future<void> saveUser(String uid, String email, String? username, String? photoUrl) async {
+    try {
+      // merge: true keeps existing data (like phone number) if we update other fields
+      await _usersCollection.doc(uid).set({
+        'email': email,
+        'username': username ?? 'User',
+        'photoUrl': photoUrl ?? '', // Default to empty string if null
+        // We don't overwrite phoneNumber here to avoid deleting it on re-login
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print('Error saving user: $e');
+    }
+  }
+
+  /// Get User Profile
+  Stream<DocumentSnapshot> getUserStream(String uid) {
+    return _usersCollection.doc(uid).snapshots();
+  }
+
+  /// Update specific field (e.g. phone number)
+  Future<void> updateUserField(String uid, String key, dynamic value) async {
+    await _usersCollection.doc(uid).update({key: value});
+  }
+  
 }
