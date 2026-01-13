@@ -63,7 +63,7 @@ class FirestoreService {
 
         for (var expenseDoc in expensesSnapshot.docs) {
           final expense = Expense.fromMap(
-            expenseDoc.data() as Map<String, dynamic>,
+            expenseDoc.data(),
             expenseDoc.id,
           );
           category.expenses.add(expense);
@@ -194,7 +194,7 @@ class FirestoreService {
       
       List<Expense> expenses = [];
       for (var doc in querySnapshot.docs) {
-        final expense = Expense.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        final expense = Expense.fromMap(doc.data(), doc.id);
         expenses.add(expense);
       }
 
@@ -260,7 +260,7 @@ class FirestoreService {
         .map((snapshot) {
       developer.log('Expenses stream update: ${snapshot.docs.length} items');
       return snapshot.docs
-          .map((doc) => Expense.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map((doc) => Expense.fromMap(doc.data(), doc.id))
           .toList();
     });
   }

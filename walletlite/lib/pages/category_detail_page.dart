@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 import '../services/firestore_service.dart';
-import 'add_expense_page.dart';
+import 'add_expense_categories_page.dart';
 
 class CategoryDetailPage extends StatefulWidget {
   final Category category;
@@ -32,10 +32,6 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  double _calculateTotal(List<Expense> expenses) {
-    return expenses.fold(0.0, (sum, expense) => sum + expense.amount);
   }
 
   @override
@@ -355,7 +351,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                               final expense = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => AddExpensePage(
+                                  builder: (_) => AddExpenseCategoriesPage(
                                       categoryId: widget.category.id ?? ''),
                                 ),
                               );

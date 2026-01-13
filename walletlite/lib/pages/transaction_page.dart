@@ -51,7 +51,6 @@ class _TransactionPageState extends State<TransactionPage> {
       case TransactionFilter.expense:
         return _transactions.where((tx) => !tx.isPositive).toList();
       case TransactionFilter.all:
-      default:
         return _transactions;
     }
   }
