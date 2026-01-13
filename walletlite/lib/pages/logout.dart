@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; 
+import '../auth/login_page.dart';
 
 class LogoutDialog extends StatelessWidget {
   const LogoutDialog({super.key});
@@ -31,8 +33,16 @@ class LogoutDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+
+                if (context.mounted) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false, 
+                  );
+                }
               },
               child: const Text("Yes, End Session"),
             ),
