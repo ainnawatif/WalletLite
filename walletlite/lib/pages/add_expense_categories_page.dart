@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/expense.dart';
+import '../models/transaction_model.dart';
+import '../services/firestore_service.dart';
+import 'dart:developer' as developer;
 
 class AddExpenseCategoriesPage extends StatefulWidget {
   final String? categoryId;
@@ -10,8 +13,7 @@ class AddExpenseCategoriesPage extends StatefulWidget {
       _AddExpenseCategoriesPageState();
 }
 
-class _AddExpenseCategoriesPageState
-    extends State<AddExpenseCategoriesPage> {
+class _AddExpenseCategoriesPageState extends State<AddExpenseCategoriesPage> {
   final titleCtrl = TextEditingController();
   final amountCtrl = TextEditingController();
   final messageCtrl = TextEditingController();
@@ -27,7 +29,7 @@ class _AddExpenseCategoriesPageState
     _selectedCategory = widget.categoryId;
   }
 
-  void _saveExpense() {
+  void _saveExpense() async {
     if (titleCtrl.text.isEmpty) {
       setState(() => _errorMessage = "Please enter expense title");
       return;
@@ -38,6 +40,13 @@ class _AddExpenseCategoriesPageState
       return;
     }
 
+    if (_selectedCategory == null) {
+      setState(() => _errorMessage = "Please select a category");
+      return;
+    }
+
+    setState(() => _errorMessage = null);
+
     try {
       final amount = double.parse(amountCtrl.text);
       if (amount <= 0) {
@@ -45,16 +54,32 @@ class _AddExpenseCategoriesPageState
         return;
       }
 
-      final expense = Expense(
-        title: titleCtrl.text,
+      // Create TransactionModel
+      final newTransaction = TransactionModel(
+        title: titleCtrl.text.trim(),
         amount: amount,
         date: _selectedDate,
+        category: _selectedCategory!,
+        note: messageCtrl.text.trim(),
+        isIncome: false,
       );
 
-      Navigator.pop(context, expense);
+      // Save to Firestore
+      final result = await FirestoreService().addTransaction(newTransaction);
+
+      if (result != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Expense saved successfully!")),
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        setState(() => _errorMessage = "Failed to save expense");
+      }
     } catch (e) {
-      setState(() =>
-          _errorMessage = "Invalid amount. Please enter a valid number");
+      developer.log("Error saving expense: $e");
+      setState(() => _errorMessage = "Error saving expense: $e");
     }
   }
 
@@ -79,16 +104,13 @@ class _AddExpenseCategoriesPageState
             padding: const EdgeInsets.fromLTRB(20, 60, 20, 40),
             decoration: const BoxDecoration(
               color: Color(0xFF1F4D6B),
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(40),
-              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon:
-                      const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
                 const Text(
@@ -105,10 +127,7 @@ class _AddExpenseCategoriesPageState
                     color: Colors.white.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
-                    Icons.lock,
-                    color: Colors.white,
-                  ),
+                  child: const Icon(Icons.lock, color: Colors.white),
                 ),
               ],
             ),
@@ -138,10 +157,7 @@ class _AddExpenseCategoriesPageState
                   const SizedBox(height: 16),
 
                   _label("Expense Title"),
-                  _inputBox(
-                    controller: titleCtrl,
-                    hint: "Eg: Dinner",
-                  ),
+                  _inputBox(controller: titleCtrl, hint: "Eg: Dinner"),
                   const SizedBox(height: 16),
 
                   _label("Enter Message"),
@@ -229,8 +245,10 @@ class _AddExpenseCategoriesPageState
         decoration: InputDecoration(
           hintText: hint,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
         ),
         onChanged: (_) => setState(() => _errorMessage = null),
       ),
@@ -260,8 +278,7 @@ class _AddExpenseCategoriesPageState
   Widget _categoryBox() {
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      padding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFE8F4FF),
         borderRadius: BorderRadius.circular(12),
@@ -278,8 +295,7 @@ class _AddExpenseCategoriesPageState
                   : Colors.grey,
             ),
           ),
-          Icon(Icons.arrow_drop_down,
-              color: Colors.blue.shade300),
+          Icon(Icons.arrow_drop_down, color: Colors.blue.shade300),
         ],
       ),
     );
@@ -288,8 +304,7 @@ class _AddExpenseCategoriesPageState
   Widget _datePicker() {
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      padding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         color: const Color(0xFFE8F4FF),
         borderRadius: BorderRadius.circular(12),
@@ -312,11 +327,13 @@ class _AddExpenseCategoriesPageState
           children: [
             Text(
               "${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}",
-              style:
-                  const TextStyle(color: Color(0xFF1F4D6B)),
+              style: const TextStyle(color: Color(0xFF1F4D6B)),
             ),
-            const Icon(Icons.calendar_today,
-                size: 18, color: Color(0xFF1F4D6B)),
+            const Icon(
+              Icons.calendar_today,
+              size: 18,
+              color: Color(0xFF1F4D6B),
+            ),
           ],
         ),
       ),

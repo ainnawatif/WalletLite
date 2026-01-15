@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
+import '../models/transaction_model.dart';
 import '../services/firestore_service.dart';
 import 'add_expense_categories_page.dart';
 
@@ -15,14 +16,15 @@ class CategoryDetailPage extends StatefulWidget {
 
 class _CategoryDetailPageState extends State<CategoryDetailPage> {
   late FirestoreService _firestoreService;
-  late Stream<List<Expense>> _expensesStream;
+  late Stream<List<TransactionModel>> _expensesStream;
 
   @override
   void initState() {
     super.initState();
     _firestoreService = FirestoreService();
-    _expensesStream =
-        _firestoreService.getExpensesStream(widget.category.id ?? '');
+    _expensesStream = _firestoreService.getTransactionsByCategory(
+      widget.category.name,
+    );
   }
 
   void _showSuccessSnackBar(String message) {
@@ -41,11 +43,17 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
       backgroundColor: const Color(0xFFEFF6FB),
 
       // ================= BODY =================
-      body: StreamBuilder<List<Expense>>(
+      body: StreamBuilder<List<TransactionModel>>(
         stream: _expensesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(
+              child: Text('Error loading expenses: ${snapshot.error}'),
+            );
           }
 
           final expenses = snapshot.data ?? [];
@@ -68,8 +76,10 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: Colors.white),
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                           onPressed: () => Navigator.pop(context),
                         ),
                         Text(
@@ -86,10 +96,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                             color: Colors.white.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.lock,
-                            color: Colors.white,
-                          ),
+                          child: const Icon(Icons.lock, color: Colors.white),
                         ),
                       ],
                     ),
@@ -105,8 +112,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                           Icons.outbond_outlined,
                           Colors.white,
                         ),
-                        Container(
-                            height: 40, width: 1, color: Colors.white30),
+                        Container(height: 40, width: 1, color: Colors.white30),
                         _headerStat(
                           "Total Expense",
                           "-RM 1,187.40",
@@ -128,8 +134,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       child: Stack(
                         children: [
                           Container(
-                            width:
-                                MediaQuery.of(context).size.width * 0.3,
+                            width: MediaQuery.of(context).size.width * 0.3,
                             decoration: BoxDecoration(
                               color: const Color(0xFF26A69A),
                               borderRadius: BorderRadius.circular(12),
@@ -163,13 +168,15 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                     const SizedBox(height: 15),
                     Row(
                       children: const [
-                        Icon(Icons.check_box_outlined,
-                            color: Colors.white, size: 18),
+                        Icon(
+                          Icons.check_box_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           "30% Of Your Expenses, Looks Good.",
-                          style:
-                              TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ],
                     ),
@@ -185,27 +192,33 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       ? Column(
                           children: const [
                             SizedBox(height: 60),
-                            Icon(Icons.receipt_long,
-                                size: 64, color: Colors.grey),
+                            Icon(
+                              Icons.receipt_long,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
                             SizedBox(height: 16),
                             Text(
                               "No expenses yet",
                               style: TextStyle(
-                                  fontSize: 18, color: Colors.grey),
+                                fontSize: 18,
+                                color: Colors.grey,
+                              ),
                             ),
                             SizedBox(height: 8),
                             Text(
                               "Tap Add Expense to get started",
                               style: TextStyle(
-                                  fontSize: 14, color: Colors.grey),
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
                             ),
                           ],
                         )
                       : Column(
                           children: expenses.map((expense) {
                             return Container(
-                              margin:
-                                  const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -247,48 +260,45 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.more_vert,
-                                            size: 20),
+                                        icon: const Icon(
+                                          Icons.more_vert,
+                                          size: 20,
+                                        ),
                                         onPressed: () {
                                           showDialog(
                                             context: context,
                                             builder: (_) => AlertDialog(
                                               title: const Text(
-                                                  "Delete Expense?"),
+                                                "Delete Expense?",
+                                              ),
                                               content: Text(
                                                 "Delete '${expense.title}' (RM ${expense.amount.toStringAsFixed(2)})?",
                                               ),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () =>
-                                                      Navigator.pop(
-                                                          context),
-                                                  child:
-                                                      const Text("Cancel"),
+                                                      Navigator.pop(context),
+                                                  child: const Text("Cancel"),
                                                 ),
                                                 ElevatedButton(
                                                   style:
-                                                      ElevatedButton
-                                                          .styleFrom(
-                                                    backgroundColor:
-                                                        Colors.red,
-                                                  ),
+                                                      ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                      ),
                                                   onPressed: () async {
                                                     await _firestoreService
-                                                        .deleteExpense(
-                                                      widget.category.id ??
-                                                          '',
-                                                      expense.id ?? '',
-                                                    );
+                                                        .deleteTransaction(
+                                                          expense.id ?? '',
+                                                        );
                                                     _showSuccessSnackBar(
-                                                        "Expense deleted!");
+                                                      "Expense deleted!",
+                                                    );
                                                     if (context.mounted) {
-                                                      Navigator.pop(
-                                                          context);
+                                                      Navigator.pop(context);
                                                     }
                                                   },
-                                                  child:
-                                                      const Text("Delete"),
+                                                  child: const Text("Delete"),
                                                 ),
                                               ],
                                             ),
@@ -314,23 +324,15 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
           child: ElevatedButton(
-            onPressed: () async {
-              final expense = await Navigator.push(
+            onPressed: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => AddExpenseCategoriesPage(
-                    categoryId: widget.category.id ?? '',
+                    categoryId: widget.category.name,
                   ),
                 ),
               );
-
-              if (expense != null) {
-                await _firestoreService.addExpense(
-                  widget.category.id ?? '',
-                  expense as Expense,
-                );
-                _showSuccessSnackBar("Expense added successfully!");
-              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF1F4D6B),
@@ -370,8 +372,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
             const SizedBox(width: 4),
             Text(
               label,
-              style:
-                  const TextStyle(color: Colors.white70, fontSize: 12),
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
             ),
           ],
         ),

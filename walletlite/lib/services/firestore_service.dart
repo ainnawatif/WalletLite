@@ -286,4 +286,23 @@ class FirestoreService {
           }).toList();
         });
   }
+
+  Stream<List<TransactionModel>> getTransactionsByCategory(String category) {
+    return _transactionsCollection
+        .where('category', isEqualTo: category)
+        .where(
+          'isIncome',
+          isEqualTo: false,
+        ) // Assuming categories are for expenses
+        .snapshots()
+        .map((snapshot) {
+          final transactions = snapshot.docs.map((doc) {
+            return TransactionModel.fromSnapshot(doc);
+          }).toList();
+          transactions.sort(
+            (a, b) => b.date.compareTo(a.date),
+          ); // Sort descending
+          return transactions;
+        });
+  }
 }
