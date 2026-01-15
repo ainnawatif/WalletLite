@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../services/firestore_service.dart';
 import '../pages/home_page.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -80,6 +81,13 @@ class _SignUpPageState extends State<SignUpPage> {
 
       if (userCredential.user != null) {
         await userCredential.user!.updateDisplayName(_usernameController.text.trim());
+
+        await FirestoreService().saveUser(
+          userCredential.user!.uid,
+          _emailController.text.trim(),
+          _usernameController.text.trim(),
+          null,
+        );
       }
 
       if (mounted) {
@@ -140,7 +148,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 30),
 
-                // Connect controllers to inputs
+                
                 _input("Email", _emailController),
                 _input("User name", _usernameController),
                 _input("Password", _passwordController, obscure: true),
@@ -148,7 +156,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 20),
 
-                _button("Continue", _signUp), // Call _signUp when clicked
+                _button("Continue", _signUp), 
 
                 const SizedBox(height: 10),
                 const Text("OR", style: TextStyle(color: Colors.white70)),
@@ -177,7 +185,7 @@ class _SignUpPageState extends State<SignUpPage> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
-        controller: controller, // Link the controller
+        controller: controller, 
         obscureText: obscure,
         decoration: InputDecoration(
           hintText: hint,
@@ -215,7 +223,7 @@ class _SignUpPageState extends State<SignUpPage> {
           borderRadius: BorderRadius.circular(30)
           ),
       ),
-      onPressed: onTap, // Call the function
+      onPressed: onTap, 
       icon: const Icon(Icons.g_mobiledata, color: Colors.red),
       label: Text(text, style: const TextStyle(color: Colors.black)),
     );

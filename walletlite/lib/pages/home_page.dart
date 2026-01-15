@@ -4,6 +4,7 @@ import 'dashboard_content.dart';
 import 'transaction_page.dart';
 import 'statistic_page.dart';
 import 'profile_page.dart';
+import 'category_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     DashboardContent(), // Tab 0
     StatisticPage(), // Tab 1 (future page)
     TransactionPage(), // Tab 2 ← now shows both Income & Expenses tabs
-    Placeholder(), // Tab 3 (future page)
+    CategoryPage(), // Tab 3 (future page)
     ProfilePage(), // Tab 4
   ];
 

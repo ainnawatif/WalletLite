@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.walletlite",
+            "certificate_hash": "007e62fd4885e85575536ae640007da4b6086a5b"
+          }
+        },
+        {
           "client_id": "737995419164-nfbfvje6pmmvf65frs8ap3p59r79pqq6.apps.googleusercontent.com",
           "client_type": 3
         }
