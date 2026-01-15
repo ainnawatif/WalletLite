@@ -69,8 +69,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
     storageBucket: 'walletlite-c22d7.firebasestorage.app',
-    androidClientId: '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
-    iosClientId: '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
+    androidClientId:
+        '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
+    iosClientId:
+        '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
     iosBundleId: 'com.example.walletlite',
   );
 
@@ -80,8 +82,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '737995419164',
     projectId: 'walletlite-c22d7',
     storageBucket: 'walletlite-c22d7.firebasestorage.app',
-    androidClientId: '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
-    iosClientId: '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
+    androidClientId:
+        '737995419164-iqgs83k4rcsa18blhvp5vjgujg17ijbt.apps.googleusercontent.com',
+    iosClientId:
+        '737995419164-k1rf42svprs2upnlujkpg9i78i7bh65v.apps.googleusercontent.com',
     iosBundleId: 'com.example.walletlite',
   );
 
@@ -94,5 +98,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'walletlite-c22d7.firebasestorage.app',
     measurementId: 'G-V71XTVCBZ9',
   );
-
 }

@@ -13,11 +13,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-<<<<<<< HEAD
-  
-
-=======
->>>>>>> f6cb4d0f0b35d5903e7fadb9cddc5b1232b62830
 
   # Firebase Core (Required for all Firebase apps)
   firebase_core: ^2.32.0

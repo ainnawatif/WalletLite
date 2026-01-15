@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/transaction_model.dart';
+import '../services/firestore_service.dart';
+import 'dart:developer' as developer;
 
 class AddIncomePage extends StatefulWidget {
   const AddIncomePage({super.key});
@@ -14,14 +17,56 @@ class _AddIncomePageState extends State<AddIncomePage> {
 
   DateTime _selectedDate = DateTime.now();
   String? _selectedCategory;
+  bool _isLoading = false;
 
   final List<String> _categories = [
     "Salary",
+    "Freelance",
     "Business",
     "Investment",
-    "Gift",
     "Other",
   ];
+
+  Future<void> _saveIncome() async {
+    if (_amountController.text.isEmpty ||
+        _titleController.text.isEmpty ||
+        _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all required fields")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final double amount = double.tryParse(_amountController.text) ?? 0.0;
+
+      final newTransaction = TransactionModel(
+        title: _titleController.text.trim(),
+        amount: amount,
+        date: _selectedDate,
+        category: _selectedCategory!,
+        note: _messageController.text.trim(),
+        isIncome: true,
+      );
+
+      final result = await FirestoreService().addTransaction(newTransaction);
+
+      if (result != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Income saved successfully!")),
+          );
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      developer.log("Error in AddIncomePage: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -33,7 +78,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1F4D6B), // Match your app color
+              primary: Color(0xFF1F4D6B),
               onPrimary: Colors.white,
               onSurface: Color(0xFF1F4D6B),
             ),
@@ -49,7 +94,6 @@ class _AddIncomePageState extends State<AddIncomePage> {
     }
   }
 
-  // Helper to create the white card background for inputs
   Widget _buildInputContainer({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
@@ -72,21 +116,28 @@ class _AddIncomePageState extends State<AddIncomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FB),
-      // Use SingleChildScrollView to prevent overflow on smaller screens
+      appBar: AppBar(
+        title: const Text("Add Income"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: const Color(0xFF1F4D6B),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. AMOUNT FIELD (Highlighted)
+            // 1. AMOUNT FIELD
             _buildInputContainer(
               child: TextField(
                 controller: _amountController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F4D6B),
+                  color: Colors.green, // Green for income
                 ),
                 decoration: const InputDecoration(
                   hintText: "0.00",
@@ -179,11 +230,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                   items: _categories.map((cat) {
                     return DropdownMenuItem(value: cat, child: Text(cat));
                   }).toList(),
-                  onChanged: (val) {
-                    setState(() {
-                      _selectedCategory = val;
-                    });
-                  },
+                  onChanged: (val) => setState(() => _selectedCategory = val),
                 ),
               ),
             ),
@@ -216,7 +263,7 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 maxLines: 3,
                 decoration: const InputDecoration(
                   prefixIcon: Padding(
-                    padding: EdgeInsets.only(bottom: 40), // Align icon to top
+                    padding: EdgeInsets.only(bottom: 40),
                     child: Icon(
                       Icons.note_alt_rounded,
                       color: Color(0xFF1F4D6B),
@@ -242,21 +289,22 @@ class _AddIncomePageState extends State<AddIncomePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1F4D6B),
                   foregroundColor: Colors.white,
-                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                onPressed: () {
-                  // TODO: Save logic
-                },
-                child: const Text(
-                  "Save Income",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                onPressed: _isLoading ? null : _saveIncome,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Save Income",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),

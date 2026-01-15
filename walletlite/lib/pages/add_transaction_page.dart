@@ -4,7 +4,9 @@ import 'add_income_page.dart';
 import 'add_expense_page.dart';
 
 class AddTransactionPage extends StatelessWidget {
-  const AddTransactionPage({super.key});
+  final String? categoryId;
+  final String? categoryName;
+  const AddTransactionPage({super.key, this.categoryId, this.categoryName});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +32,6 @@ class AddTransactionPage extends StatelessWidget {
                     // Back button row
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
                         const SizedBox(width: 8),
                         const Text(
                           "Add Transaction",

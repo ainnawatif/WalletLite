@@ -1,316 +1,347 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:walletlite/pages/home_page.dart';
+import '../models/expense.dart';
+import '../models/transaction_model.dart';
+import '../services/firestore_service.dart';
 import 'add_transaction_page.dart';
 
-enum TransactionFilter { all, income, expense }
-
 class TransactionPage extends StatefulWidget {
-  const TransactionPage({super.key});
+  final String? categoryId;
+  final String? categoryName;
+
+  const TransactionPage({super.key, this.categoryId, this.categoryName});
 
   @override
   State<TransactionPage> createState() => _TransactionPageState();
 }
 
 class _TransactionPageState extends State<TransactionPage> {
-  TransactionFilter _filter = TransactionFilter.all;
-
-  // Example transactions (replace later with Firestore)
-  final List<_TransactionTile> _transactions = [
-    _TransactionTile(
-      title: "Salary",
-      subtitle: "18:27 - April 30",
-      category: "Monthly",
-      amount: "4000.00",
-      icon: Icons.account_balance_wallet_rounded,
-      iconBgColor: Colors.blue,
-      isPositive: true,
-    ),
-    _TransactionTile(
-      title: "Groceries",
-      subtitle: "17:00 - April 24",
-      category: "Pantry",
-      amount: "100.00",
-      icon: Icons.shopping_basket_rounded,
-      iconBgColor: Colors.blueAccent,
-      isPositive: false,
-    ),
-    _TransactionTile(
-      title: "Rent",
-      subtitle: "8:30 - April 15",
-      category: "Rent",
-      amount: "610.40",
-      icon: Icons.vpn_key_rounded,
-      iconBgColor: Colors.indigo,
-      isPositive: false,
-    ),
-  ];
-
-  List<_TransactionTile> get _filteredTransactions {
-    switch (_filter) {
-      case TransactionFilter.income:
-        return _transactions.where((tx) => tx.isPositive).toList();
-      case TransactionFilter.expense:
-        return _transactions.where((tx) => !tx.isPositive).toList();
-      case TransactionFilter.all:
-        return _transactions;
-    }
-  }
-
-  double get totalBalance {
-    double income = _transactions
-        .where((tx) => tx.isPositive)
-        .fold(0, (sum, tx) => sum + double.parse(tx.amount));
-    double expense = _transactions
-        .where((tx) => !tx.isPositive)
-        .fold(0, (sum, tx) => sum + double.parse(tx.amount));
-    return income - expense;
-  }
+  final FirestoreService _firestoreService = FirestoreService();
+  final currencyFormat = NumberFormat.currency(locale: 'en_MY', symbol: 'RM ');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFF6FB),
+      backgroundColor: const Color(
+        0xFF1F4D6B,
+      ), // Dark blue background for the header area
+      body: SafeArea(
+        child: StreamBuilder<List<TransactionModel>>(
+          stream: _firestoreService.getAllTransactionsStream(),
+          builder: (context, snapshot) {
+            final transactions = snapshot.data ?? [];
+
+            // Logic to calculate totals for the summary cards
+            double totalIncome = transactions
+                .where((t) => t.isIncome)
+                .fold(0, (sum, item) => sum + item.amount);
+            double totalExpense = transactions
+                .where((t) => !t.isIncome)
+                .fold(0, (sum, item) => sum + item.amount);
+            double totalBalance = totalIncome - totalExpense;
+
+            return Column(
+              children: [
+                // --- 1. HEADER SECTION (Balance & Summary Cards) ---
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      _buildTopHeader(),
+                      const SizedBox(height: 20),
+                      _buildTotalBalanceCard(totalBalance),
+                      const SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildSummaryCard(
+                              "Income",
+                              totalIncome,
+                              isBlue: true,
+                            ),
+                          ),
+                          const SizedBox(width: 15),
+                          Expanded(
+                            child: _buildSummaryCard(
+                              "Expense",
+                              totalExpense,
+                              isBlue: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // --- 2. LIST SECTION (White Rounded Area) ---
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(50),
+                      ),
+                    ),
+                    child: transactions.isEmpty
+                        ? const Center(child: Text("No transactions found"))
+                        : _buildTransactionList(transactions),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+      // Floating Action Button exactly like your screenshot
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddTransactionPage()),
+            MaterialPageRoute(
+              builder: (context) => AddTransactionPage(
+                categoryId: widget.categoryId,
+                categoryName: widget.categoryName,
+              ),
+            ),
           );
         },
         backgroundColor: const Color(0xFF1F4D6B),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // HEADER
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 25),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1F4D6B),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    "Transaction",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // TOTAL BALANCE CARD
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Total Balance",
-                          style: TextStyle(
-                            color: Color(0xFF1F4D6B),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          "RM ${totalBalance.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1F4D6B),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Income & Expense Boxes with tap
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _filter = TransactionFilter.income;
-                            });
-                          },
-                          child: _buildSummaryBox(
-                            "Income",
-                            "RM 4,120.00",
-                            Icons.arrow_outward_rounded,
-                            Colors.teal,
-                            isSelected: _filter == TransactionFilter.income,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 15),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _filter = TransactionFilter.expense;
-                            });
-                          },
-                          child: _buildSummaryBox(
-                            "Expense",
-                            "RM 1,187.40",
-                            Icons.call_received_rounded,
-                            Colors.blueAccent,
-                            isSelected: _filter == TransactionFilter.expense,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // Show All button
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _filter = TransactionFilter.all;
-                      });
-                    },
-                    child: const Text(
-                      "Show All",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // TRANSACTION LIST
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: _filteredTransactions,
-              ),
-            ),
-          ],
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Icon(Icons.add, size: 35, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildSummaryBox(
-    String title,
-    String amount,
-    IconData icon,
-    Color color, {
-    bool isSelected = false,
-  }) {
+  // Header row with Back and Notification
+  Widget _buildTopHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          },
+        ),
+
+        const Text(
+          "Transaction",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.notifications_none, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  // White Total Balance Card
+  Widget _buildTotalBalanceCard(double amount) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: isSelected ? color.withOpacity(0.2) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: isSelected
-            ? Border.all(color: color, width: 2)
-            : Border.all(color: Colors.transparent),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 18, color: color),
-              const SizedBox(width: 5),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            amount,
+          const Text(
+            "Total Balance",
             style: TextStyle(
-              color: color,
+              color: Color(0xFF1F4D6B),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            currencyFormat.format(amount),
+            style: const TextStyle(
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              color: Color(0xFF1F4D6B),
             ),
           ),
         ],
       ),
     );
   }
-}
 
-class _TransactionTile extends StatelessWidget {
-  final String title, subtitle, category, amount;
-  final IconData icon;
-  final Color iconBgColor;
-  final bool isPositive;
+  // Summary Cards (Income/Expense)
+  Widget _buildSummaryCard(
+    String label,
+    double amount, {
+    required bool isBlue,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: isBlue ? const Color(0xFF007AFF) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isBlue ? Icons.arrow_outward : Icons.call_received,
+                color: isBlue ? Colors.white : const Color(0xFF007AFF),
+                size: 18,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isBlue ? Colors.white : const Color(0xFF1F4D6B),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+          Text(
+            currencyFormat.format(amount),
+            style: TextStyle(
+              color: isBlue ? Colors.white : const Color(0xFF007AFF),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  const _TransactionTile({
-    required this.title,
-    required this.subtitle,
-    required this.category,
-    required this.amount,
-    required this.icon,
-    required this.iconBgColor,
-    required this.isPositive,
-  });
+  // The grouped List with Month headers
+  Widget _buildTransactionList(List<TransactionModel> transactions) {
+    // Group transactions by month and year
+    Map<String, List<TransactionModel>> groupedTransactions = {};
 
-  @override
-  Widget build(BuildContext context) {
+    for (var transaction in transactions) {
+      String monthYear = DateFormat('MMMM yyyy').format(transaction.date);
+      if (!groupedTransactions.containsKey(monthYear)) {
+        groupedTransactions[monthYear] = [];
+      }
+      groupedTransactions[monthYear]!.add(transaction);
+    }
+
+    List<Widget> widgets = [];
+    groupedTransactions.forEach((monthYear, trans) {
+      widgets.add(_buildMonthHeader(monthYear));
+      widgets.addAll(trans.map((e) => _buildTransactionItem(e)).toList());
+      widgets.add(const SizedBox(height: 20));
+    });
+
+    return ListView(padding: const EdgeInsets.all(30), children: widgets);
+  }
+
+  Widget _buildMonthHeader(String month) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            month,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1F4D6B),
+            ),
+          ),
+          const Icon(Icons.calendar_month_outlined, color: Color(0xFF1F4D6B)),
+        ],
+      ),
+    );
+  }
+
+  // Custom List Item with vertical dividers like the screenshot
+  Widget _buildTransactionItem(TransactionModel transaction) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 25,
-            backgroundColor: iconBgColor,
-            child: Icon(icon, color: Colors.white),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: transaction.isIncome
+                  ? const Color(0xFF4CAF50)
+                  : const Color.fromARGB(255, 224, 95, 95),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(
+              transaction.isIncome ? Icons.arrow_upward : Icons.layers,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: 15),
           Expanded(
+            flex: 3,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  transaction.title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  subtitle,
+                  "${DateFormat('HH:mm').format(transaction.date)} - ${DateFormat('MMMM dd').format(transaction.date)}",
                   style: const TextStyle(
-                    color: Colors.blueAccent,
+                    color: Color(0xFF007AFF),
                     fontSize: 12,
                   ),
+                ),
+                Text(
+                  transaction.category,
+                  style: const TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
           ),
           Container(
-            height: 30,
+            height: 40,
             width: 1,
-            color: Colors.grey.shade300,
-            margin: const EdgeInsets.symmetric(horizontal: 10),
-          ),
-          SizedBox(
-            width: 60,
-            child: Text(
-              category,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+            color: Colors.grey[300],
+          ), // Vertical Divider
+          const Expanded(
+            flex: 2,
+            child: Center(
+              child: Text("Monthly", style: TextStyle(color: Colors.grey)),
             ),
           ),
-          Text(
-            isPositive ? "RM $amount" : "-RM $amount",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isPositive ? Colors.black : Colors.blueAccent,
+          Container(
+            height: 40,
+            width: 1,
+            color: Colors.grey[300],
+          ), // Vertical Divider
+          Expanded(
+            flex: 3,
+            child: Text(
+              currencyFormat.format(transaction.amount),
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: transaction.isIncome ? Colors.green : Colors.red,
+              ),
             ),
           ),
         ],

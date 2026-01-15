@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/expense.dart'; // Ensure this path is correct
+import '../models/transaction_model.dart';
+import '../services/firestore_service.dart';
+import 'dart:developer' as developer;
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
@@ -14,6 +18,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   DateTime _selectedDate = DateTime.now();
   String? _selectedCategory;
+  bool _isLoading = false; // Added to track saving state
 
   final List<String> _categories = [
     "Food",
@@ -23,6 +28,51 @@ class _AddExpensePageState extends State<AddExpensePage> {
     "Entertainment",
     "Other",
   ];
+
+  // Logic to save the expense to Firestore
+  Future<void> _saveExpense() async {
+    // 1. Basic Validation
+    if (_amountController.text.isEmpty ||
+        _titleController.text.isEmpty ||
+        _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all required fields")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final double amount = double.tryParse(_amountController.text) ?? 0.0;
+
+      // 2. Create Transaction Object
+      final newTransaction = TransactionModel(
+        title: _titleController.text.trim(),
+        amount: amount,
+        date: _selectedDate,
+        category: _selectedCategory!,
+        note: _messageController.text.trim(),
+        isIncome: false,
+      );
+
+      // 3. Call Firestore Service
+      final result = await FirestoreService().addTransaction(newTransaction);
+
+      if (result != null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Expense saved successfully!")),
+          );
+          Navigator.pop(context); // Go back after saving
+        }
+      }
+    } catch (e) {
+      developer.log("Error in AddExpensePage: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
@@ -34,7 +84,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1F4D6B), // Match app color
+              primary: Color(0xFF1F4D6B),
               onPrimary: Colors.white,
               onSurface: Color(0xFF1F4D6B),
             ),
@@ -50,7 +100,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     }
   }
 
-  // Helper for the white card style
   Widget _buildInputContainer({required Widget child}) {
     return Container(
       decoration: BoxDecoration(
@@ -69,11 +118,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FB),
+      appBar: AppBar(
+        title: const Text("Add Expense"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: const Color(0xFF1F4D6B),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
@@ -83,11 +137,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
             _buildInputContainer(
               child: TextField(
                 controller: _amountController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFD32F2F), // Red text for Expense
+                  color: Color(0xFFD32F2F),
                 ),
                 decoration: const InputDecoration(
                   hintText: "0.00",
@@ -116,7 +172,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 2. DATE PICKER (Matching Icon)
+            // 2. DATE PICKER
             GestureDetector(
               onTap: _pickDate,
               child: _buildInputContainer(
@@ -130,7 +186,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       const Icon(
                         Icons.calendar_today_rounded,
                         color: Color(0xFF1F4D6B),
-                      ), // Same as Income
+                      ),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +214,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 3. CATEGORY (Matching Icon)
+            // 3. CATEGORY
             _buildInputContainer(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -169,7 +225,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     prefixIcon: Icon(
                       Icons.category_rounded,
                       color: Color(0xFF1F4D6B),
-                    ), // Same as Income
+                    ),
                     labelText: "Category",
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
@@ -180,17 +236,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   items: _categories.map((cat) {
                     return DropdownMenuItem(value: cat, child: Text(cat));
                   }).toList(),
-                  onChanged: (val) {
-                    setState(() {
-                      _selectedCategory = val;
-                    });
-                  },
+                  onChanged: (val) => setState(() => _selectedCategory = val),
                 ),
               ),
             ),
             const SizedBox(height: 20),
 
-            // 4. TITLE (Matching Icon)
+            // 4. TITLE
             _buildInputContainer(
               child: TextField(
                 controller: _titleController,
@@ -198,7 +250,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   prefixIcon: Icon(
                     Icons.title_rounded,
                     color: Color(0xFF1F4D6B),
-                  ), // Same as Income
+                  ),
                   labelText: "Title",
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(
@@ -210,7 +262,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 20),
 
-            // 5. MESSAGE (Matching Icon)
+            // 5. MESSAGE
             _buildInputContainer(
               child: TextField(
                 controller: _messageController,
@@ -221,7 +273,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     child: Icon(
                       Icons.note_alt_rounded,
                       color: Color(0xFF1F4D6B),
-                    ), // Same as Income
+                    ),
                   ),
                   labelText: "Note (Optional)",
                   alignLabelWithHint: true,
@@ -243,21 +295,22 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1F4D6B),
                   foregroundColor: Colors.white,
-                  elevation: 2,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                onPressed: () {
-                  // TODO: Save expense logic
-                },
-                child: const Text(
-                  "Save Expense",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                onPressed: _isLoading ? null : _saveExpense,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Save Expense",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
