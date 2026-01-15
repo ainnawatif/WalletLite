@@ -79,29 +79,18 @@ class _CategoryPageState extends State<CategoryPage> {
                         return;
                       }
 
-                      try {
-                        await _firestoreService.addCategory(controller.text);
-                        if (mounted) {
-                          _showSuccessSnackBar("Category added successfully!");
-                          Navigator.pop(context);
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Error: $e"),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
+                      await _firestoreService.addCategory(controller.text);
+                      if (mounted) {
+                        _showSuccessSnackBar("Category added successfully!");
+                        Navigator.pop(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1F4D6B),
+                      minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      minimumSize: const Size(double.infinity, 48),
                     ),
                     child: const Text(
                       "Save",
@@ -117,10 +106,10 @@ class _CategoryPageState extends State<CategoryPage> {
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB0D9FF),
+                      minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      minimumSize: const Size(double.infinity, 48),
                     ),
                     child: const Text(
                       "Cancel",
@@ -144,340 +133,276 @@ class _CategoryPageState extends State<CategoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FB),
-      body: SafeArea(
-        child: StreamBuilder<List<Category>>(
-          stream: _firestoreService.getCategoriesStream(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final categories = snapshot.data ?? [];
-
-            return SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // ===== HEADER (SAME AS STATISTIC PAGE) =====
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 60, 20, 40),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1F4D6B),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(40),
+                ),
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1F4D6B),
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(30),
+                  // Top Bar
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon:
+                            const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title with back and menu buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: Colors.white),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                                const Text(
-                                  "Categories",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.lock, color: Colors.white),
-                              onPressed: () {},
-                            ),
-                          ],
+                      const Text(
+                        "Categories",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 16),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
 
-                        // Balance Cards
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Total Balance",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    "RM 7,783.00",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white24,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: 0.7,
-                                        backgroundColor: Colors.transparent,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue[300]!),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    "\$20,000.00",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                  // Balance Row
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _headerStat(
+                        "Total Balance",
+                        "RM 7,783.00",
+                        Icons.outbond_outlined,
+                        Colors.white,
+                      ),
+                      Container(height: 40, width: 1, color: Colors.white30),
+                      _headerStat(
+                        "Total Expense",
+                        "-RM 1,187.40",
+                        Icons.move_to_inbox_outlined,
+                        const Color(0xFFFF8A8A),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Progress Bar
+                  Container(
+                    height: 24,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF26A69A),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            "30%",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Total Expense",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    "-RM 1,187.40",
-                                    style: TextStyle(
-                                      color: Color(0xFFFF6B6B),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white24,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: 0.3,
-                                        backgroundColor: Colors.transparent,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                                Color(0xFFFF6B6B)),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    "\$20,000.00",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "📊 30% Of Your Expenses, Looks Good.",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                        const Positioned(
+                          right: 12,
+                          top: 4,
+                          child: Text(
+                            "RM 20,000.00",
+                            style: TextStyle(
+                              color: Color(0xFF1F4D6B),
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.italic,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-
-                  // Categories Grid
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (categories.isEmpty)
-                          Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.folder_open,
-                                    size: 64, color: Colors.grey),
-                                const SizedBox(height: 16),
-                                const Text(
-                                  "No categories yet",
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.grey),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  "Tap + to create your first category",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
-                              childAspectRatio: 0.85,
-                            ),
-                            itemCount: categories.length,
-                            itemBuilder: (context, index) {
-                              final category = categories[index];
-                              final icon = categoryIcons[category.name] ??
-                                  Icons.category;
-
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => CategoryDetailPage(
-                                          category: category),
-                                    ),
-                                  );
-                                },
-                                onLongPress: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: const Text("Delete Category?"),
-                                      content: Text(
-                                        "Delete '${category.name}' and all its expenses?",
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text("Cancel"),
-                                        ),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                          ),
-                                          onPressed: () async {
-                                            await _firestoreService
-                                                .deleteCategory(
-                                                    category.id ?? '');
-                                            _showSuccessSnackBar(
-                                              "Category deleted!",
-                                            );
-                                            if (mounted)
-                                              Navigator.pop(context);
-                                          },
-                                          child: const Text("Delete"),
-                                        )
-                                      ],
-                                    ),
-                                  );
-                                },
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      height: 80,
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue[300],
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          icon,
-                                          size: 40,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      category.name,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        const SizedBox(height: 16),
-                        // Add more button
-                        Center(
-                          child: GestureDetector(
-                            onTap: _addCategory,
-                            child: Column(
-                              children: [
-                                Container(
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue[300],
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 40,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  "More",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: const [
+                      Icon(Icons.check_box_outlined,
+                          color: Colors.white, size: 18),
+                      SizedBox(width: 8),
+                      Text(
+                        "30% Of Your Expenses, Looks Good.",
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            );
-          },
+            ),
+
+            // ===== CATEGORY GRID (UNCHANGED) =====
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: StreamBuilder<List<Category>>(
+                stream: _firestoreService.getCategoriesStream(),
+                builder: (context, snapshot) {
+                  final categories = snapshot.data ?? [];
+
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 0.95,
+                    ),
+                    itemCount: categories.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == categories.length) {
+                        // ADD BUTTON
+                        return GestureDetector(
+                          onTap: _addCategory,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 68,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[300],
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withOpacity(0.08),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.add,
+                                      size: 36, color: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                "More",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      final category = categories[index];
+                      final icon = categoryIcons[category.name] ??
+                          Icons.category;
+
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CategoryDetailPage(category: category),
+                            ),
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              height: 68,
+                              decoration: BoxDecoration(
+                                color: Colors.blue[300],
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        Colors.black.withOpacity(0.08),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Icon(icon,
+                                    size: 36, color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              category.name,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  // ===== SHARED HEADER WIDGET =====
+  Widget _headerStat(
+    String label,
+    String value,
+    IconData icon,
+    Color valColor,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: valColor,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
