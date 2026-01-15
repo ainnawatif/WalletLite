@@ -21,7 +21,8 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   void initState() {
     super.initState();
     _firestoreService = FirestoreService();
-    _expensesStream = _firestoreService.getExpensesStream(widget.category.id ?? '');
+    _expensesStream =
+        _firestoreService.getExpensesStream(widget.category.id ?? '');
   }
 
   void _showSuccessSnackBar(String message) {
@@ -38,368 +39,352 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFEFF6FB),
-      body: SafeArea(
-        child: StreamBuilder<List<Expense>>(
-          stream: _expensesStream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
 
-            final expenses = snapshot.data ?? [];
+      // ================= BODY =================
+      body: StreamBuilder<List<Expense>>(
+        stream: _expensesStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1F4D6B),
-                      borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(30),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          final expenses = snapshot.data ?? [];
+
+          return Column(
+            children: [
+              // ===== HEADER (MATCH CATEGORY PAGE / STATISTIC PAGE) =====
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 60, 20, 40),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1F4D6B),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(40),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    // Top Bar
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Title with back and menu buttons
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: Colors.white),
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                                Text(
-                                  widget.category.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.lock, color: Colors.white),
-                              onPressed: () {},
-                            ),
-                          ],
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back,
+                              color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        const SizedBox(height: 16),
-
-                        // Balance Cards
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Total Balance",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    "RM 7,783.00",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white24,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: 0.7,
-                                        backgroundColor: Colors.transparent,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue[300]!),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    "\$20,000.00",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Total Expense",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    "-RM 1,187.40",
-                                    style: TextStyle(
-                                      color: Color(0xFFFF6B6B),
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Container(
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white24,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(2),
-                                      child: LinearProgressIndicator(
-                                        value: 0.3,
-                                        backgroundColor: Colors.transparent,
-                                        valueColor:
-                                            const AlwaysStoppedAnimation<Color>(
-                                                Color(0xFFFF6B6B)),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    "\$20,000.00",
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "📊 30% Of Your Expenses, Looks Good.",
-                          style: TextStyle(
+                        Text(
+                          widget.category.name,
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.lock,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 30),
 
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    // Balance Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        // Expenses List
-                        if (expenses.isEmpty)
-                          Center(
-                            child: Column(
-                              children: const [
-                                Icon(Icons.receipt_long,
-                                    size: 64, color: Colors.grey),
-                                SizedBox(height: 16),
-                                Text(
-                                  "No expenses yet",
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.grey),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  "Tap + to add your first expense",
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.grey),
-                                ),
-                              ],
+                        _headerStat(
+                          "Total Balance",
+                          "RM 7,783.00",
+                          Icons.outbond_outlined,
+                          Colors.white,
+                        ),
+                        Container(
+                            height: 40, width: 1, color: Colors.white30),
+                        _headerStat(
+                          "Total Expense",
+                          "-RM 1,187.40",
+                          Icons.move_to_inbox_outlined,
+                          const Color(0xFFFF8A8A),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+
+                    // Progress Bar
+                    Container(
+                      height: 24,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(
+                            width:
+                                MediaQuery.of(context).size.width * 0.3,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF26A69A),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          )
-                        else
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              for (var expense in expenses)
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                            alignment: Alignment.center,
+                            child: const Text(
+                              "30%",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const Positioned(
+                            right: 12,
+                            top: 4,
+                            child: Text(
+                              "RM 20,000.00",
+                              style: TextStyle(
+                                color: Color(0xFF1F4D6B),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      children: const [
+                        Icon(Icons.check_box_outlined,
+                            color: Colors.white, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          "30% Of Your Expenses, Looks Good.",
+                          style:
+                              TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ===== CONTENT =====
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: expenses.isEmpty
+                      ? Column(
+                          children: const [
+                            SizedBox(height: 60),
+                            Icon(Icons.receipt_long,
+                                size: 64, color: Colors.grey),
+                            SizedBox(height: 16),
+                            Text(
+                              "No expenses yet",
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.grey),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Tap Add Expense to get started",
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: expenses.map((expense) {
+                            return Container(
+                              margin:
+                                  const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            expense.title,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            "${expense.date.hour.toString().padLeft(2, '0')}:${expense.date.minute.toString().padLeft(2, '0')} - ${expense.date.day}",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        expense.title,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "-RM ${expense.amount.toStringAsFixed(2)}",
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFFFF6B6B),
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: const Icon(Icons.more_vert,
-                                                size: 20),
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder: (_) => AlertDialog(
-                                                  title: const Text(
-                                                      "Delete Expense?"),
-                                                  content: Text(
-                                                    "Delete '${expense.title}' (RM ${expense.amount.toStringAsFixed(2)})?",
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(
-                                                              context),
-                                                      child: const Text(
-                                                          "Cancel"),
-                                                    ),
-                                                    ElevatedButton(
-                                                      style:
-                                                          ElevatedButton
-                                                              .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.red,
-                                                      ),
-                                                      onPressed: () async {
-                                                        await _firestoreService
-                                                            .deleteExpense(
-                                                          widget.category.id ??
-                                                              '',
-                                                          expense.id ?? '',
-                                                        );
-                                                        _showSuccessSnackBar(
-                                                          "Expense deleted!",
-                                                        );
-                                                        if (context.mounted) {
-                                                          Navigator.pop(
-                                                              context);
-                                                        }
-                                                      },
-                                                      child: const Text(
-                                                          "Delete"),
-                                                    )
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ],
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "${expense.date.hour.toString().padLeft(2, '0')}:${expense.date.minute.toString().padLeft(2, '0')} - ${expense.date.day}",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                ),
-                            ],
-                          ),
-                        const SizedBox(height: 20),
-
-                        // Add Expenses Button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final expense = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AddExpenseCategoriesPage(
-                                      categoryId: widget.category.id ?? ''),
-                                ),
-                              );
-
-                              if (expense != null) {
-                                try {
-                                  await _firestoreService.addExpense(
-                                    widget.category.id ?? '',
-                                    expense as Expense,
-                                  );
-                                  _showSuccessSnackBar(
-                                      "Expense added successfully!");
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("Error: $e"),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1F4D6B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "-RM ${expense.amount.toStringAsFixed(2)}",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFFFF6B6B),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.more_vert,
+                                            size: 20),
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                              title: const Text(
+                                                  "Delete Expense?"),
+                                              content: Text(
+                                                "Delete '${expense.title}' (RM ${expense.amount.toStringAsFixed(2)})?",
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context),
+                                                  child:
+                                                      const Text("Cancel"),
+                                                ),
+                                                ElevatedButton(
+                                                  style:
+                                                      ElevatedButton
+                                                          .styleFrom(
+                                                    backgroundColor:
+                                                        Colors.red,
+                                                  ),
+                                                  onPressed: () async {
+                                                    await _firestoreService
+                                                        .deleteExpense(
+                                                      widget.category.id ??
+                                                          '',
+                                                      expense.id ?? '',
+                                                    );
+                                                    _showSuccessSnackBar(
+                                                        "Expense deleted!");
+                                                    if (context.mounted) {
+                                                      Navigator.pop(
+                                                          context);
+                                                    }
+                                                  },
+                                                  child:
+                                                      const Text("Delete"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: const Text(
-                              "Add Expenses",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                            );
+                          }).toList(),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            );
-          },
+            ],
+          );
+        },
+      ),
+
+      // ===== FIXED BOTTOM BUTTON =====
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+          child: ElevatedButton(
+            onPressed: () async {
+              final expense = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => AddExpenseCategoriesPage(
+                    categoryId: widget.category.id ?? '',
+                  ),
+                ),
+              );
+
+              if (expense != null) {
+                await _firestoreService.addExpense(
+                  widget.category.id ?? '',
+                  expense as Expense,
+                );
+                _showSuccessSnackBar("Expense added successfully!");
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1F4D6B),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              elevation: 6,
+            ),
+            child: const Text(
+              "Add Expense",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  // ===== HEADER STAT WIDGET =====
+  Widget _headerStat(
+    String label,
+    String value,
+    IconData icon,
+    Color valColor,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style:
+                  const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            color: valColor,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }
