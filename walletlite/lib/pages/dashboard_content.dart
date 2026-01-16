@@ -1,264 +1,374 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import '../models/transaction_model.dart';
+import '../services/firestore_service.dart';
 
-class DashboardContent extends StatelessWidget {
+class DashboardContent extends StatefulWidget {
   const DashboardContent({super.key});
 
   @override
+  State<DashboardContent> createState() => _DashboardContentState();
+}
+
+class _DashboardContentState extends State<DashboardContent> {
+  final FirestoreService _firestoreService = FirestoreService();
+  final currencyFormat = NumberFormat.currency(locale: 'en_MY', symbol: 'RM ');
+  int _selectedTabIndex =
+      2; // 0=Daily, 1=Weekly, 2=Monthly (default to Monthly)
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFEFF6FB),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // --- HEADER ---
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1F4D6B),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(40),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Hi, Welcome Back",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.notifications_none,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _headerStat(
-                        "Total Balance",
-                        "RM 7,783.00",
-                        Icons.outbond_outlined,
-                        Colors.white,
-                      ),
-                      Container(height: 40, width: 1, color: Colors.white30),
-                      _headerStat(
-                        "Total Expense",
-                        "-RM 1,187.40",
-                        Icons.move_to_inbox_outlined,
-                        const Color(0xFFFF8A8A),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 25),
-                  // Progress Bar
-                  Container(
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+    return StreamBuilder<List<TransactionModel>>(
+      stream: _firestoreService.getAllTransactionsStream(),
+      builder: (context, snapshot) {
+        final transactions = snapshot.data ?? [];
+
+        // Calculate totals
+        double totalIncome = transactions
+            .where((t) => t.isIncome)
+            .fold(0, (sum, item) => sum + item.amount);
+        double totalExpense = transactions
+            .where((t) => !t.isIncome)
+            .fold(0, (sum, item) => sum + item.amount);
+        double totalBalance = totalIncome - totalExpense;
+
+        // Calculate percentage for progress bar
+        double expensePercentage = totalIncome > 0
+            ? (totalExpense / totalIncome) * 100
+            : 0;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFEFF6FB),
+          body: SafeArea(
+            child: Column(
+              children: [
+                // --- HEADER ---
+                Container(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1F4D6B),
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(40),
                     ),
-                    child: Stack(
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF26A69A),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          alignment: Alignment.center,
-                          child: const Text(
-                            "30%",
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Hi, Welcome Back",
                             style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.notifications_none,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 25),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _headerStat(
+                            "Total Balance",
+                            currencyFormat.format(totalBalance),
+                            Icons.outbound_outlined,
+                            Colors.white,
+                          ),
+                          Container(
+                            height: 40,
+                            width: 1,
+                            color: Colors.white30,
+                          ),
+                          _headerStat(
+                            "Total Expense",
+                            currencyFormat.format(-totalExpense),
+                            Icons.move_to_inbox_outlined,
+                            const Color(0xFFFF8A8A),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 25),
+                      // Progress Bar
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: LinearProgressIndicator(
+                              value: totalExpense > 0
+                                  ? totalExpense / (totalIncome + totalExpense)
+                                  : 0,
+                              backgroundColor: Colors.white,
+                              color: const Color(0xFF26A69A),
+                              minHeight: 24,
+                            ),
+                          ),
+                          // Centered percentage text
+                          Text(
+                            totalExpense > 0
+                                ? "${((totalExpense / (totalIncome + totalExpense)) * 100).toStringAsFixed(0)}%"
+                                : "0%",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        const Positioned(
-                          right: 12,
-                          top: 4,
-                          child: Text(
-                            "\$20,000.00",
-                            style: TextStyle(
-                              color: Color(0xFF1F4D6B),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              fontStyle: FontStyle.italic,
+                          // Income label aligned to the right
+                          Positioned(
+                            right: 12,
+                            child: Text(
+                              currencyFormat.format(totalIncome),
+                              style: const TextStyle(
+                                color: Color(0xFF1F4D6B),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: const [
-                      Icon(
-                        Icons.check_box_outlined,
-                        color: Colors.white,
-                        size: 18,
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Text(
-                        "30% Of Your Expenses, Looks Good.",
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.check_box_outlined,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            expensePercentage > 0
+                                ? "${expensePercentage.toStringAsFixed(0)}% Of Your Expenses${expensePercentage <= 30 ? ', Looks Good.' : '.'}"
+                                : "No expenses yet",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
+                ),
 
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  // --- GOALS CARD ---
-                  Container(
+                Expanded(
+                  child: ListView(
                     padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1F4D6B),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Row(
-                      children: [
-                        Column(
+                    children: [
+                      // --- GOALS CARD ---
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1F4D6B),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
                           children: [
-                            Stack(
-                              alignment: Alignment.center,
+                            Column(
                               children: [
-                                SizedBox(
-                                  height: 70,
-                                  width: 70,
-                                  child: CircularProgressIndicator(
-                                    value: 0.7,
-                                    strokeWidth: 8,
-                                    color: Colors.tealAccent,
-                                    backgroundColor: Colors.white12,
-                                  ),
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 70,
+                                      width: 70,
+                                      child: CircularProgressIndicator(
+                                        value: totalIncome > 0
+                                            ? (totalBalance / totalIncome)
+                                            : 0,
+                                        strokeWidth: 8,
+                                        color: Colors.tealAccent,
+                                        backgroundColor: Colors.white12,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.directions_car,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ],
                                 ),
-                                const Icon(
-                                  Icons.directions_car,
-                                  color: Colors.white,
-                                  size: 30,
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Savings\nOn Goals",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              "Savings\nOn Goals",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
+                            const SizedBox(width: 20),
+                            Container(
+                              height: 80,
+                              width: 1,
+                              color: Colors.white24,
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  _goalRow(
+                                    Icons.payments,
+                                    "Revenue Last Week",
+                                    currencyFormat.format(
+                                      _calculateWeeklyIncome(transactions),
+                                    ),
+                                    Colors.white,
+                                  ),
+                                  const Divider(color: Colors.white24),
+                                  _goalRow(
+                                    Icons.restaurant,
+                                    "Food Last Week",
+                                    currencyFormat.format(
+                                      -_calculateWeeklyExpense(
+                                        transactions,
+                                        'Food',
+                                      ),
+                                    ),
+                                    const Color(0xFFFF8A8A),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(width: 20),
-                        Container(height: 80, width: 1, color: Colors.white24),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              _goalRow(
-                                Icons.payments,
-                                "Revenue Last Week",
-                                "RM 4.000.00",
-                                Colors.white,
-                              ),
-                              const Divider(color: Colors.white24),
-                              _goalRow(
-                                Icons.restaurant,
-                                "Food Last Week",
-                                "-RM 100.00",
-                                const Color(0xFFFF8A8A),
-                              ),
-                            ],
-                          ),
+                      ),
+
+                      // --- TABS ---
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: ["Daily", "Weekly", "Monthly"]
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                int index = entry.key;
+                                String tab = entry.value;
+                                bool isSelected = _selectedTabIndex == index;
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedTabIndex = index;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 25,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? const Color(0xFF1F4D6B)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      tab,
+                                      style: TextStyle(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.black54,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  // --- TABS ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: ["Daily", "Weekly", "Monthly"].map((tab) {
-                        bool isMonthly = tab == "Monthly";
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 25,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isMonthly
-                                ? const Color(0xFF1F4D6B)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            tab,
-                            style: TextStyle(
-                              color: isMonthly ? Colors.white : Colors.black54,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                      // --- RECENT TRANSACTIONS ---
+                      ..._buildRecentTransactions(
+                        _filterTransactionsByTab(transactions),
+                      ),
+                    ],
                   ),
-
-                  // --- TRANSACTIONS ---
-                  _transactionTile(
-                    "Salary",
-                    "18:27 - April 30",
-                    "Monthly",
-                    "RM 400,00",
-                    Colors.blue,
-                    Colors.blue,
-                  ),
-                  _transactionTile(
-                    "Groceries",
-                    "17:00 - April 24",
-                    "Pantry",
-                    "-RM 100,00",
-                    Colors.lightBlue,
-                    Colors.red,
-                  ),
-                  _transactionTile(
-                    "Rent",
-                    "8:30 - April 15",
-                    "Rent",
-                    "-RM 674,40",
-                    Colors.blueAccent,
-                    Colors.red,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
+  }
+
+  List<TransactionModel> _filterTransactionsByTab(
+    List<TransactionModel> transactions,
+  ) {
+    final now = DateTime.now();
+    DateTime startDate;
+
+    switch (_selectedTabIndex) {
+      case 0: // Daily - last 24 hours
+        startDate = now.subtract(const Duration(days: 1));
+        break;
+      case 1: // Weekly - last 7 days
+        startDate = now.subtract(const Duration(days: 7));
+        break;
+      case 2: // Monthly - last 30 days
+      default:
+        startDate = now.subtract(const Duration(days: 30));
+        break;
+    }
+
+    return transactions
+        .where((transaction) => transaction.date.isAfter(startDate))
+        .take(3)
+        .toList();
+  }
+
+  double _calculateWeeklyIncome(List<TransactionModel> transactions) {
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    return transactions
+        .where((t) => t.isIncome && t.date.isAfter(weekAgo))
+        .fold(0, (sum, item) => sum + item.amount);
+  }
+
+  double _calculateWeeklyExpense(
+    List<TransactionModel> transactions,
+    String category,
+  ) {
+    final now = DateTime.now();
+    final weekAgo = now.subtract(const Duration(days: 7));
+    return transactions
+        .where(
+          (t) =>
+              !t.isIncome && t.category == category && t.date.isAfter(weekAgo),
+        )
+        .fold(0, (sum, item) => sum + item.amount);
+  }
+
+  List<Widget> _buildRecentTransactions(List<TransactionModel> transactions) {
+    return transactions.map((transaction) {
+      return _transactionTile(
+        transaction.title,
+        "${DateFormat('HH:mm').format(transaction.date)} - ${DateFormat('MMMM dd').format(transaction.date)}",
+        transaction.category,
+        currencyFormat.format(transaction.amount),
+        transaction.isIncome ? Colors.blue : Colors.lightBlue,
+        transaction.isIncome ? Colors.green : Colors.red,
+      );
+    }).toList();
   }
 
   Widget _headerStat(

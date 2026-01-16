@@ -187,7 +187,7 @@ class _StatisticPageState extends State<StatisticPage> {
               children: [
                 // HEADER SECTION
                 Container(
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 40),
+                  padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
                   decoration: const BoxDecoration(
                     color: Color(0xFF1F4D6B),
                     borderRadius: BorderRadius.vertical(
