@@ -130,8 +130,75 @@ The sequence diagram illustrates how users interact with the personal finance ma
        src="https://github.com/user-attachments/assets/e8ef3cdc-2252-4f10-8df7-17649bb2a635" />
 </p>
 
+## 📊 Summary of Achieved Features
+The current version of WalletLite includes:
+
+1. **Google Sign-In Authentication**
+Secure login using Firebase Authentication with Google support.
+
+2. **User Dashboard**
+Shows balance, recent transactions, and overview metrics.
+
+3. **Statistics Page**
+Displays spending insights using bar charts.
+
+4. **Transaction Page**
+Supports adding income & expense transactions.
+
+5. **Categories Page**
+Shows predefined categories and allows custom category creation.
+
+6. **Profile Page**
+Displays user info and supports secure logout.
+
+# 🧩 Technical Explanation
+
+1. **Frontend Framework (Flutter)**
+WalletLite is developed using the Flutter framework, enabling cross-platform deployment for both Android and iOS. Flutter’s widget-based architecture supports modular UI design and reusability. Core widgets such as Scaffold, ListView, Container, Row, and Column form the basis of the layout and navigation.
+
+2. **Backend Services (Firebase with FlutterFire)**
+The backend relies on Firebase services integrated using FlutterFire plugins:
+
+  - **Firebase Authentication** — handles user login & Google Sign-In
+
+  - **Cloud Firestore** — stores user-specific data such as transactions and categories
+
+  - **Firebase Storage** — manages user-generated files (e.g., profile images)
+
+3. **Real-Time Data Handling**
+Firestore provides real-time synchronization, ensuring that updates to transactions, categories, or profiles are reflected instantly across the UI without manual refresh logic.
+
+4. **State Management**
+The application currently uses Stateful Widgets and setState() for UI updates. This is suitable for small-scale apps with limited complexity, enabling quick UI refreshes during user input and data changes.
+
+## ⚠️ Limitations
+Current technical and functional limitations include:
+
+1. Single Currency Format — Multi-currency support and conversion logic are not available.
+2. No Recurring Transaction Handling — Monthly bills, rent, etc., must be entered manually.
+3. No Offline Mode — Authentication and database queries require internet to function.
+
+
+## 🚀 Future Enhancements
+Planned improvements include:
+
+1. **AI Insights / Smart Analysis**
+AI recommendations, overspending alerts, budgeting advice.
+
+2. **Export Transaction Data**
+Data export to:
+
+    - CSV
+    
+    - PDF
+
+3. **Multi-Currency Support**
+Selection of preferred currency + conversion support.
+
+4. **Recurring Transactions**
+Automated logging for subscriptions, bills, rent, etc.
 
 ## 📚 References
-Figma Documentation: https://www.figma.com/design/grNokvbjeAjLV23XVOZXmG/WalletLite?node-id=0-1&p=f&t=LQxRLD19ImeQI6LO-0
-Firebase Documentation: https://console.firebase.google.com/u/0/project/walletlite-c22d7/overview
+- **Figma Documentation:** https://www.figma.com/design/grNokvbjeAjLV23XVOZXmG/WalletLite?node-id=0-1&p=f&t=LQxRLD19ImeQI6LO-0
+- **Firebase Documentation:** https://console.firebase.google.com/u/0/project/walletlite-c22d7/overview
 
