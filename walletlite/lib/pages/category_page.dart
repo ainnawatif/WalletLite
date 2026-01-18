@@ -306,7 +306,7 @@ class _CategoryPageState extends State<CategoryPage> {
 
                 // ===== CATEGORY GRID (UNCHANGED) =====
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
                   child: StreamBuilder<List<Category>>(
                     stream: _firestoreService.getCategoriesStream(),
                     builder: (context, snapshot) {
@@ -318,8 +318,8 @@ class _CategoryPageState extends State<CategoryPage> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
-                              mainAxisSpacing: 16,
-                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 1,
+                              crossAxisSpacing: 12,
                               childAspectRatio: 0.95,
                             ),
                         itemCount: categories.length + 1,

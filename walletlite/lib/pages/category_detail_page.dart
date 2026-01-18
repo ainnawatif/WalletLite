@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/category.dart';
 import '../models/expense.dart';
 import '../models/transaction_model.dart';
@@ -17,6 +18,7 @@ class CategoryDetailPage extends StatefulWidget {
 class _CategoryDetailPageState extends State<CategoryDetailPage> {
   late FirestoreService _firestoreService;
   late Stream<List<TransactionModel>> _expensesStream;
+  final currencyFormat = NumberFormat.currency(locale: 'en_MY', symbol: 'RM ');
 
   @override
   void initState() {
@@ -44,7 +46,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
       // ================= BODY =================
       body: StreamBuilder<List<TransactionModel>>(
-        stream: _expensesStream,
+        stream: _firestoreService.getAllTransactionsStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -52,11 +54,35 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error loading expenses: ${snapshot.error}'),
+              child: Text('Error loading data: ${snapshot.error}'),
             );
           }
 
-          final expenses = snapshot.data ?? [];
+          final allTransactions = snapshot.data ?? [];
+
+          // Calculate totals for all transactions
+          double totalIncome = allTransactions
+              .where((t) => t.isIncome)
+              .fold(0, (sum, item) => sum + item.amount);
+          double totalExpense = allTransactions
+              .where((t) => !t.isIncome)
+              .fold(0, (sum, item) => sum + item.amount);
+          double totalBalance = totalIncome - totalExpense;
+
+          // Calculate category-specific expense
+          double categoryExpense = allTransactions
+              .where((t) => t.category == widget.category.name && !t.isIncome)
+              .fold(0, (sum, item) => sum + item.amount);
+
+          // Calculate percentage for progress bar
+          double expensePercentage = totalIncome > 0
+              ? (totalExpense / totalIncome) * 100
+              : 0;
+          
+          // Get category-specific expenses for the list
+          final categoryExpenses = allTransactions
+              .where((t) => t.category == widget.category.name && !t.isIncome)
+              .toList();
 
           return Column(
             children: [
@@ -96,7 +122,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                             color: Colors.white.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.lock, color: Colors.white),
+                          child: const Icon(Icons.notifications_none, color: Colors.white),
                         ),
                       ],
                     ),
@@ -108,14 +134,14 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       children: [
                         _headerStat(
                           "Total Balance",
-                          "RM 7,783.00",
-                          Icons.outbond_outlined,
+                          currencyFormat.format(totalBalance),
+                          Icons.outbound_outlined,
                           Colors.white,
                         ),
                         Container(height: 40, width: 1, color: Colors.white30),
                         _headerStat(
                           "Total Expense",
-                          "-RM 1,187.40",
+                          currencyFormat.format(-totalExpense),
                           Icons.move_to_inbox_outlined,
                           const Color(0xFFFF8A8A),
                         ),
@@ -134,27 +160,27 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       child: Stack(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width * 0.3,
+                            width: (MediaQuery.of(context).size.width - 40) * (expensePercentage / 100),
                             decoration: BoxDecoration(
                               color: const Color(0xFF26A69A),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             alignment: Alignment.center,
-                            child: const Text(
-                              "30%",
-                              style: TextStyle(
+                            child: Text(
+                              "${expensePercentage.toStringAsFixed(1)}%",
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          const Positioned(
+                          Positioned(
                             right: 12,
                             top: 4,
                             child: Text(
-                              "RM 20,000.00",
-                              style: TextStyle(
+                              currencyFormat.format(totalIncome),
+                              style: const TextStyle(
                                 color: Color(0xFF1F4D6B),
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -167,16 +193,16 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                     ),
                     const SizedBox(height: 15),
                     Row(
-                      children: const [
-                        Icon(
+                      children: [
+                        const Icon(
                           Icons.check_box_outlined,
                           color: Colors.white,
                           size: 18,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
-                          "30% Of Your Expenses, Looks Good.",
-                          style: TextStyle(color: Colors.white, fontSize: 14),
+                          "${expensePercentage.toStringAsFixed(1)}% Of Your Expenses, Looks Good.",
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ],
                     ),
@@ -188,7 +214,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(20),
-                  child: expenses.isEmpty
+                  child: categoryExpenses.isEmpty
                       ? Column(
                           children: const [
                             SizedBox(height: 60),
@@ -216,7 +242,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                           ],
                         )
                       : Column(
-                          children: expenses.map((expense) {
+                          children: categoryExpenses.map((expense) {
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(16),
@@ -252,7 +278,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                                   Row(
                                     children: [
                                       Text(
-                                        "-RM ${expense.amount.toStringAsFixed(2)}",
+                                        "-${currencyFormat.format(expense.amount)}",
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -272,7 +298,7 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                                                 "Delete Expense?",
                                               ),
                                               content: Text(
-                                                "Delete '${expense.title}' (RM ${expense.amount.toStringAsFixed(2)})?",
+                                                "Delete '${expense.title}' (${currencyFormat.format(expense.amount)})?",
                                               ),
                                               actions: [
                                                 TextButton(
