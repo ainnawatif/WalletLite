@@ -130,6 +130,22 @@ The sequence diagram illustrates how users interact with the personal finance ma
        src="https://github.com/user-attachments/assets/e8ef3cdc-2252-4f10-8df7-17649bb2a635" />
 </p>
 
+## 📊 Final UI Screenshots
+<img width="745" height="945" alt="Screenshot (849)" src="https://github.com/user-attachments/assets/666ac12c-4b9d-4e47-b88f-73c1a5129f3f" />
+<img width="742" height="950" alt="Screenshot (850)" src="https://github.com/user-attachments/assets/f2b16017-5d70-4e0c-bf53-a64aa336c7e3" />
+<img width="747" height="941" alt="Screenshot (851)" src="https://github.com/user-attachments/assets/8caad979-20f1-4d94-9dca-7aac17f4abbe" />
+<img width="737" height="938" alt="Screenshot (848)" src="https://github.com/user-attachments/assets/7df1c977-8a28-40db-ac31-fdb280e7581d" />
+<img width="738" height="950" alt="Screenshot (830)" src="https://github.com/user-attachments/assets/f39f4c01-22c7-44a9-ae91-0893480a6ab5" />
+<img width="737" height="945" alt="Screenshot (832)" src="https://github.com/user-attachments/assets/2684e58e-07d1-4e60-8853-018ca44d1ae6" />
+<img width="741" height="945" alt="Screenshot (833)" src="https://github.com/user-attachments/assets/e6cfbc1d-fea4-443d-acf2-7bf2b2c56e32" />
+<img width="750" height="946" alt="Screenshot (834)" src="https://github.com/user-attachments/assets/2ed89630-b487-4446-b954-3b8b532e72aa" />
+<img width="748" height="947" alt="Screenshot (835)" src="https://github.com/user-attachments/assets/a29ad379-a742-4697-8701-1eb6724dae63" />
+<img width="751" height="946" alt="Screenshot (836)" src="https://github.com/user-attachments/assets/1bfa0f63-e27e-46a0-8603-d18fd738bf0b" />
+<img width="749" height="948" alt="Screenshot (837)" src="https://github.com/user-attachments/assets/568c1aa2-0451-4a8d-afb6-ea9d0b83228c" />
+<img width="741" height="946" alt="Screenshot (838)" src="https://github.com/user-attachments/assets/bde4500f-d87b-473a-8ab6-bf621d5c7563" />
+<img width="746" height="950" alt="Screenshot (839)" src="https://github.com/user-attachments/assets/ec713f6e-5b7b-4ddf-8311-331196a00480" />
+<img width="744" height="928" alt="Screenshot (840)" src="https://github.com/user-attachments/assets/82c04e2e-2caa-4a52-9dc7-fe0757f62737" />
+
 ## 📊 Summary of Achieved Features
 The current version of WalletLite includes:
 
